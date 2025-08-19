@@ -45,7 +45,7 @@ sap.ui.define([
 
 		handleUploadComplete: function(oEvent) {
 			if (oEvent.mParameters.status === 200) {
-				MessageToast.show(oEvent.mParameters.status === 200 ? "Upload Successful" : "Upload Failed!");
+				MessageToast.show("Upload Successful!");
 				let json = JSON.parse(oEvent.mParameters.responseRaw);
 				_oController.handleResponse(json);
 			} else {
