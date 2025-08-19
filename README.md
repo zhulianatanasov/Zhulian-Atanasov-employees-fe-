@@ -1,4 +1,4 @@
-![Screenshot](webapp/img/sscreenshot.png)
+![Screenshot](webapp/img/screenshot.png)
 
 ## Getting started
 
