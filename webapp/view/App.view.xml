@@ -1,0 +1,248 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core" xmlns="sap.m" xmlns:f="sap.f" xmlns:l="sap.ui.layout" xmlns:u="sap.ui.unified" controllerName="sap.ui.demo.todo.controller.App" displayBlock="true">
+		<App>
+			<Page>
+				<customHeader>
+					<f:ShellBar core:require="{ Helper: 'sap/ui/demo/todo/util/Helper' }" title="{i18n>TITLE}" homeIcon="{:= Helper.resolvePath('./img/sirma_careers_logo.jpeg') }" />
+				</customHeader>
+				<content>
+					<l:Splitter height="100%" orientation="Horizontal">
+						<l:Splitter>
+							<l:layoutData>
+								<l:SplitterLayoutData size="auto" />
+							</l:layoutData>
+							<l:contentAreas>
+								<l:Splitter orientation="Vertical">
+									<VBox>
+										<Button width="100%" text="User Options">
+											<layoutData>
+												<l:SplitterLayoutData size="30%"/>
+											</layoutData>
+										</Button>
+										<Panel width="auto" class="sapUiResponsiveMargin" accessibleRole="Region">
+										<headerToolbar>
+											<OverflowToolbar>
+												<Title text="1. Preferences"/>
+											</OverflowToolbar>
+										</headerToolbar>
+										<content>
+											<VBox width="100%">
+													<HBox>
+														<Label text="Date Format: " class="sapUiSmallMarginTop" width="6rem"></Label>
+														<Input value="{view>/format}"></Input>
+													</HBox>
+													<HBox>
+														<Label text="Separator: " class="sapUiSmallMarginTop" width="6rem"></Label>
+														<Select id="separators" selectedKey="{view>/separator}">
+															<core:Item key="C" text="Comma (,)"/>
+															<core:Item key="S" text="Semicolon (;)"/>
+															<core:Item key="T" text="Tab (\t)"/>
+															<core:Item key="P" text="Pipe (|)"/>
+														</Select>
+													</HBox>
+											</VBox>
+										</content>
+										</Panel>
+
+										<Panel width="auto" class="sapUiResponsiveMargin" accessibleRole="Region">
+										<headerToolbar>
+											<OverflowToolbar>
+												<Title text="2. Data Source"/>
+											</OverflowToolbar>
+										</headerToolbar>
+										<content>
+											<VBox width="100%">
+												<RadioButton id="rbLoadFromFile" text="Upload CSV File" value="LoadFromFile" selected="{= ${view>/action} === 'LoadFromFile' ? true : false }" />
+												<u:FileUploader
+														id="fileUploader"
+														name="myFileUpload"
+														tooltip="Upload your file to the local server"
+														uploadComplete="handleUploadComplete"
+														change="handleValueChange"
+														typeMissmatch="handleTypeMissmatch"
+														fileType="csv" visible="{= ${view>/action} === 'LoadFromFile' ? true : false }"
+														uploadStart="addUploadSecurity"
+														placeholder="Choose a CSV file for Upload...">
+													<u:parameters>
+														<u:FileUploaderParameter
+																name="X-SEPARATOR"
+																value="{view>/separator}"/>
+														<u:FileUploaderParameter
+																name="X-FORMAT"
+																value="Bearer {view>/format}"/>
+													</u:parameters>
+												</u:FileUploader>
+												<Button id="btnFileUpload"
+														text="Upload File"
+														press="handleUploadPress"/>
+
+												<RadioButton id="rbText" enabled="false" text="Send CSV Text" class="sapUiSmallMarginTop" value="SendCsv" selected="{= ${view>/action} === 'SendCsv' ? true : false }" />
+												<RadioButton id="rbJson" enabled="false" text="Send JSON" class="sapUiSmallMarginTop" value="SendJson" selected="{= ${view>/action} === 'SendJson' ? true : false }" />
+												<RadioButton id="rbRandomData" enabled="false" text="Generate Random Data" class="sapUiSmallMarginTop" value="Random" selected="{= ${view>/action} === 'Random' ? true : false }" />
+											</VBox>
+										</content>
+										</Panel>
+
+
+									</VBox>
+								</l:Splitter>
+								<l:Splitter orientation="Vertical">
+									<VBox width="100%">
+										<Button width="100%" text="CSV Content /table/">
+											<layoutData>
+												<l:SplitterLayoutData size="33%" />
+											</layoutData>
+										</Button>
+<!--										<Toolbar id="otbSubheader">-->
+<!--											<ToolbarSpacer />-->
+<!--											<Button id="editButton" text="Edit" type="Transparent"-->
+<!--													press="onEdit" />-->
+<!--											<Button id="saveButton" text="Save and Send" type="Transparent"-->
+<!--													press="onSave" visible="false" />-->
+<!--											<Button id="cancelButton" text="Cancel" type="Transparent"-->
+<!--													press="onCancel" visible="false" />-->
+<!--										</Toolbar>-->
+										<Table id="idCsvTable" growing="true" growingThreshold="10" paste="onPaste"
+											   items="{
+													path: 'csv>/',
+													sorter: {
+														path: 'projectID'
+													}
+												}">
+											<columns>
+												<Column width="25%">
+													<Text text="Employee ID" />
+												</Column>
+												<Column width="25%">
+													<Text text="Project ID" />
+												</Column>
+												<Column width="25%">
+													<Text text="Date From" />
+												</Column>
+												<Column width="25%">
+													<Text text="Date To" />
+												</Column>
+											</columns>
+											<items>
+												<ColumnListItem vAlign="Middle">
+													<cells>
+														<Text
+																text="{csv>empID}"/>
+														<Text
+																text="{csv>projectID}"/>
+														<Text
+																text="{csv>dateFrom}" />
+														<Text
+																text="{csv>dateTo}" />
+													</cells>
+												</ColumnListItem>
+											</items>
+										</Table>
+									</VBox>
+									<VBox width="100%">
+										<Button width="100%" text="CSV Content /text/">
+											<layoutData>
+												<l:SplitterLayoutData size="33%" />
+											</layoutData>
+										</Button>
+										<Toolbar id="tbCsv">
+												<ToolbarSpacer />
+												<Button id="sendCsvButton" text="Send CSV to Backend" type="Transparent"
+														press="onSendCsvToBackend" />
+										</Toolbar>
+										<TextArea id="taCsv" width="100%" height="100%" rows="15" growing="true" value="{originalCsv>/csv}"></TextArea>
+									</VBox>
+									<VBox width="100%">
+										<Button width="100%" text="CSV Content /JSON/">
+											<layoutData>
+												<l:SplitterLayoutData size="33%" />
+											</layoutData>
+										</Button>
+										<Toolbar id="tbJson">
+											<ToolbarSpacer />
+											<Button id="sendJsonButton" text="Send JSON to Backend" type="Transparent"
+													press="onSendJsonToBackend" />
+										</Toolbar>
+										<TextArea width="100%" height="100%" id="taJson" rows="15" growing="true" value="{originalJson>/json}"></TextArea>
+									</VBox>
+								</l:Splitter>
+								<l:Splitter orientation="Vertical">
+									<VBox width="100%">
+										<Button width="100%" text="Backend Response /table/">
+											<layoutData>
+												<l:SplitterLayoutData size="50%" />
+											</layoutData>
+										</Button>
+										<Table id="idResponseTable"
+											   inset="false"
+											   items="{
+													path: 'responses>/',
+													sorter: {
+														path: 'projectID'
+													}
+												}">
+											<columns>
+												<Column width="25%">
+													<Text text="Employee ID #1" />
+												</Column>
+												<Column width="25%">
+													<Text text="Employee ID #2" />
+												</Column>
+												<Column width="25%">
+													<Text text="Project ID" />
+												</Column>
+												<Column width="25%" hAlign="Center">
+													<Text text="Days worked" />
+												</Column>
+											</columns>
+											<items>
+												<ColumnListItem vAlign="Middle">
+													<cells>
+														<Text
+																text="{responses>empID1}"/>
+														<Text
+																text="{responses>empID2}"/>
+														<Text
+																text="{responses>projectID}" />
+														<Text
+																text="{responses>days}" />
+													</cells>
+												</ColumnListItem>
+											</items>
+										</Table>
+									</VBox>
+									<VBox width="100%">
+										<Button width="100%" text="Backend Response /csv/">
+											<layoutData>
+												<l:SplitterLayoutData size="50%" />
+											</layoutData>
+										</Button>
+										<TextArea width="100%" height="100%" id="taResponseCsv" rows="15" growing="true" editable="false" value="{responseCsv>/csv}"></TextArea>
+									</VBox>
+								</l:Splitter>
+<!--								<Button width="100%" text="Content 5">-->
+<!--									<layoutData>-->
+<!--										<l:SplitterLayoutData size="30%" minSize="200px" />-->
+<!--									</layoutData>-->
+<!--								</Button>-->
+							</l:contentAreas>
+						</l:Splitter>
+					</l:Splitter>
+				</content>
+
+				<footer>
+					<OverflowToolbar id="toolbar-footer" visible="{= !!${view>/isMobile} }">
+						<SegmentedButton selectedKey="all" selectionChange=".onFilter" class="sapMSegmentedButtonNoAutoWidth">
+							<items>
+								<SegmentedButtonItem text="All" key="all"/>
+								<SegmentedButtonItem text="Active" key="active"/>
+								<SegmentedButtonItem text="Completed" key="completed"/>
+							</items>
+						</SegmentedButton>
+						<ToolbarSpacer />
+						<Button id="clearCompleted-footer" enabled="{/itemsRemovable}" icon="sap-icon://delete" text="{i18n>CLEAR_COMPLETED}" press=".onClearCompleted"/>
+					</OverflowToolbar>
+				</footer>
+
+			</Page>
+		</App>
+</mvc:View>
